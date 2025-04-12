@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "pyhunt"
 authors = [{ name = "EasyDev", email = "easydevv@gmail.com" }]
-description = ""
+description = "Lightweight Python logging tool for visual call tracing, tree-structured colored logs, and easy debugging with a simple decorator. Optimized for both standard and AI-generated codebases. "
 readme = "README.md"
 requires-python = ">=3.12"
 classifiers = [
