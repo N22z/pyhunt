@@ -10,7 +10,14 @@ Simply add a decorator to your functions, and all logs are automatically traced 
 [![PyPI version](https://img.shields.io/pypi/v/pyhunt.svg)](https://pypi.org/project/pyhunt/)
 [![Python Versions](https://img.shields.io/pypi/pyversions/pyhunt.svg)](https://pypi.org/project/pyhunt/)
 
-#### English | [한국어](../README_KR.md)
+#### English | [한국어](/README_KR.md)
+
+---
+
+https://github.com/user-attachments/assets/3d4389fe-4708-423a-812e-25f2e7200053
+
+<img src="docs/description.png" alt="pyhunt_description" width="600"/>
+
 </div>
 
 ## Features

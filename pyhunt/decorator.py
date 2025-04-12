@@ -151,11 +151,11 @@ def trace(
                         raise TypeError(
                             f"Expected awaitable from async func {func_name}, got {type(result)}"
                         )
+                    # For async, return tokens for context reset
+                    return result, token_ctx, token_depth
                 else:
                     result = func(*args, **kwargs)  # Execute sync func
-
-                # Return result (sync) or awaitable (async)
-                return result
+                    return result
 
             except Exception as e:
                 elapsed = time.perf_counter() - start
@@ -183,18 +183,22 @@ def trace(
                 # Re-raise without filtering here
                 raise e
             finally:
-                # Context reset happens regardless of success/error
-                call_depth.reset(token_depth)
-                current_function_context.reset(token_ctx)
+                # Only reset context for sync functions here
+                if not is_async_func_flag:
+                    call_depth.reset(token_depth)
+                    current_function_context.reset(token_ctx)
 
         @functools.wraps(func)
         async def async_wrapper(*args, **kwargs):
             start_time = time.perf_counter()
             parent_depth = call_depth.get()  # Need depth for exit log
             current_depth = parent_depth + 1
+            # Prepare for context reset after await
+            token_ctx = None
+            token_depth = None
             try:
-                # _invoke returns the awaitable
-                awaitable = _invoke(True, *args, **kwargs)
+                # _invoke returns (awaitable, token_ctx, token_depth)
+                awaitable, token_ctx, token_depth = _invoke(True, *args, **kwargs)
                 result = await awaitable
                 # Log exit after successful await
                 elapsed = time.perf_counter() - start_time
@@ -207,9 +211,6 @@ def trace(
                 )
                 return result
             except Exception as e:
-                # Filter traceback in the outermost frame
-                # filtered_tb = _filter_traceback(e.__traceback__)
-
                 import traceback as _traceback_module
                 import sys as _sys_module
 
@@ -218,6 +219,11 @@ def trace(
 
                 print(first_tb_str)
                 _sys_module.exit(1)
+            finally:
+                # Reset context after await completes
+                if token_ctx is not None and token_depth is not None:
+                    call_depth.reset(token_depth)
+                    current_function_context.reset(token_ctx)
 
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
