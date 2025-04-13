@@ -7,24 +7,28 @@ def multiply(a, b):
 
 
 @trace
-def calculate(numbers):
+def calculate(numbers, loop_count):
     total = 0
-    for num in range(0, 2):
-        total += multiply(num, 2)
+    # For each number, multiply by 2 in a loop of loop_count times
+    for num in numbers:
+        for _ in range(loop_count):
+            total += multiply(num, 2)
     return total
 
 
 @trace
-def process_data(data):
+def process_data(data, loop_count):
     processed = [x + 1 for x in data]
-    result = calculate(processed)
+    result = calculate(processed, loop_count)
     return result
 
 
 @trace
 def main():
     data = [1, 2, 3]
-    final_result = process_data(data)
+    loop_count = 10
+
+    final_result = process_data(data, loop_count)
     return final_result
 
 

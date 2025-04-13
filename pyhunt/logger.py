@@ -1,15 +1,48 @@
 from pathlib import Path
 from typing import Any, Dict, Optional
+import threading
 
 from rich.console import Console
 
 from pyhunt.colors import build_indent, get_color
-from pyhunt.config import LOG_LEVEL, LOG_LEVELS
+from pyhunt.config import LOG_LEVEL, LOG_LEVELS, MAX_LOG_COUNT
 from pyhunt.context import call_depth
 from pyhunt.helpers import pretty_json
 
 # Initialize Rich Console
 console = Console(log_path=False, log_time=False)
+# --- Log suppression mechanism ---
+_log_count_map = {}
+_log_count_lock = threading.Lock()
+
+
+def _should_suppress_log(key):
+    """Returns True if the log for this key should be suppressed, False otherwise.
+    If suppression is triggered, returns a tuple (suppress, show_ellipsis) where:
+      - suppress: True if log should be suppressed
+      - show_ellipsis: True if "... 생략 ..." should be shown (only once per key)
+    """
+    if MAX_LOG_COUNT is None or MAX_LOG_COUNT < 1:
+        return False, False
+    with _log_count_lock:
+        count = _log_count_map.get(key, 0)
+        if count < MAX_LOG_COUNT:
+            _log_count_map[key] = count + 1
+            return False, False
+        elif count == MAX_LOG_COUNT:
+            _log_count_map[key] = count + 1
+            return True, True  # Suppress log, but show ellipsis
+        else:
+            return True, False  # Suppress log, no ellipsis
+
+
+# --- End log suppression mechanism ---
+
+
+def _format_truncation_message(event_type, depth):
+    color = "grey50"
+    msg = f"[{color}] ... Repeated logs have been omitted | MAX_LOG_COUNT: {MAX_LOG_COUNT}[/]"
+    return format_with_tree_indent(msg, depth, event_type)
 
 
 def should_log(level_name: str) -> bool:
@@ -76,6 +109,19 @@ def log_entry(
     colored_name = f"[bold {color}]{name}[/]"
     colored_location = f"[bold {color}]{location}[/]"
 
+    # Suppression key: (event_type, func_name, class_name, location)
+    suppress_key = ("entry", func_name, class_name, location)
+    suppress, show_trunc = _should_suppress_log(suppress_key)
+    if suppress:
+        if show_trunc:
+            trunc_msg = _format_truncation_message("entry", depth)
+            try:
+                if should_log("debug"):
+                    console.print(trunc_msg)
+            except Exception:
+                pass
+        return
+
     args_to_format = {k: v for k, v in call_args.items() if k != "self"}
     if not args_to_format:
         args_json_str = ""
@@ -109,6 +155,12 @@ def log_exit(
     name = f"{class_name}.{func_name}" if class_name else func_name
     depth_str = f"[{color}]{depth}[/]"
     colored_name = f"[{color}]{name}[/]"
+
+    # Suppression key: (event_type, func_name, class_name)
+    suppress_key = ("exit", func_name, class_name)
+    suppress, _ = _should_suppress_log(suppress_key)
+    if suppress:
+        return
 
     core_message = f"{depth_str} 🔳 Exit {sync_async}{colored_name} | {elapsed:.4f}s"
     message = format_with_tree_indent(core_message, depth, "exit")
@@ -151,6 +203,19 @@ def log_error(
     colored_name = f"[bold {color}]{name}[/]"
     colored_location = f"[bold {color}]{precise_location}[/]"
 
+    # Suppression key: (event_type, func_name, class_name, precise_location)
+    suppress_key = ("error", func_name, class_name, precise_location)
+    suppress, show_trunc = _should_suppress_log(suppress_key)
+    if suppress:
+        if show_trunc:
+            trunc_msg = _format_truncation_message("error", depth)
+            try:
+                if should_log("debug"):
+                    console.print(trunc_msg)
+            except Exception:
+                pass
+        return
+
     args_to_format = {k: v for k, v in call_args.items() if k != "self"}
     if not args_to_format:
         args_json_str = ""
@@ -175,6 +240,16 @@ def log_error(
 def styled_log(level_name: str, message: str, depth: int = 0) -> None:
     color = get_color(depth)
     depth_str = f" [{color}]{depth}[/]"
+
+    # Suppression key: (level_name, message)
+    suppress_key = ("styled", level_name, message)
+    suppress, show_trunc = _should_suppress_log(suppress_key)
+    if suppress:
+        if show_trunc:
+            trunc_msg = _format_truncation_message("", depth)
+            if should_log(level_name):
+                console.print(trunc_msg)
+        return
 
     if level_name.lower() in ("debug", "info"):
         label = f"[cyan]{level_name.upper()}[/cyan]"
