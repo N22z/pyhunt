@@ -68,7 +68,7 @@ async def test(value):
     return value
 ```
 
-#### Class Methods
+#### Class
 ```py
 @trace
 class MyClass:
@@ -90,17 +90,17 @@ Add the following rules to `.cursorrules`, `.clinerules`, or `.roorules`:
 **Import:** Import the decorator with `from pyhunt import trace`.
 **Tracing:** Use the `@trace` decorator to automatically log function calls and execution times.
 **Avoid `print()`:** Do not use the `print()` function.
-**Exception Handling:** Use `try`/`except` blocks and re-raise exceptions with `raise` to maintain traceback.
+**Exception Handling:** Use `try`/`except Exception as e: raise e` blocks to maintain traceback.
 
 </logging-rules>
 ```
 
 ### Modifying Existing Codebase
-Command: **"Modify the codebase according to the logging rules."**
+Prompt: **"Modify the code according to the logging rules."**
 
 ## Logger Usage
 
-The `logger` interface is recommended for use only in critical sections.  
+The `logger` interface is recommended for use only in important sections.  
 Most actions are traced via `@trace`, and excessive use may reduce readability.
 
 ```py

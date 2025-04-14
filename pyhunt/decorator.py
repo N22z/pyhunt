@@ -8,7 +8,7 @@ from pyhunt.config import LOG_LEVEL
 from pyhunt.context import call_depth, current_function_context
 from pyhunt.helpers import format_call_args
 from pyhunt.logger import log_entry, log_error, log_exit, warning
-from pyhunt.utils import _filter_traceback, extract_first_traceback
+from pyhunt.utils import extract_first_traceback
 from rich import print
 
 

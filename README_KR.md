@@ -74,7 +74,7 @@ async def test(value):
     return value
 ```
 
-#### 클래스 메서드
+#### 클래스
 ```py
 @trace
 class MyClass:
@@ -95,13 +95,13 @@ class MyClass:
 **Import:** Import the decorator with `from pyhunt import trace`.
 **Tracing:** Use the `@trace` decorator to automatically log function calls and execution times.
 **Avoid `print()`:** Do not use the `print()` function.
-**Exception Handling:** Use `try`/`except` blocks and re-raise exceptions with `raise` to maintain traceback.
+**Exception Handling:** Use `try`/`except Exception as e: raise e` blocks to maintain traceback.
 
 </logging-rules>
 ```
 
 ### 기존 코드베이스 수정
-**"로깅 룰에 따라 코드베이스를 수정하세요."** 라고 명령합니다.
+**"로깅 룰에 따라 코드를 수정하세요."** 라고 명령합니다.
 
 ## Logger 사용법
 `logger` 방식은 중요한 부분만 일부 사용하는것을 권장합니다.  

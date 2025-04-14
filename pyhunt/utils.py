@@ -1,23 +1,3 @@
-import types
-
-
-def _filter_traceback(tb):
-    frames_to_keep = []
-    while tb is not None:
-        filename = tb.tb_frame.f_code.co_filename
-        # Exclude frames from the decorator file
-        if "pyhunt/decorator.py" not in filename.replace("\\", "/"):
-            frames_to_keep.append((tb.tb_frame, tb.tb_lasti, tb.tb_lineno))
-        tb = tb.tb_next
-
-    # Reconstruct the traceback from the kept frames
-    filtered_tb = None
-    for frame, lasti, lineno in reversed(frames_to_keep):
-        filtered_tb = types.TracebackType(filtered_tb, frame, lasti, lineno)
-
-    return filtered_tb
-
-
 def extract_first_traceback(traceback_text):
     """
     Extracts and returns the first traceback block from a traceback string.

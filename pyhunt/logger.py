@@ -5,7 +5,7 @@ import threading
 from rich.console import Console
 
 from pyhunt.colors import build_indent, get_color
-from pyhunt.config import LOG_LEVEL, LOG_LEVELS, MAX_LOG_COUNT
+from pyhunt.config import LOG_LEVEL, LOG_LEVELS, MAX_REPEAT
 from pyhunt.context import call_depth
 from pyhunt.helpers import pretty_json
 
@@ -22,14 +22,14 @@ def _should_suppress_log(key):
       - suppress: True if log should be suppressed
       - show_ellipsis: True if "... 생략 ..." should be shown (only once per key)
     """
-    if MAX_LOG_COUNT is None or MAX_LOG_COUNT < 1:
+    if MAX_REPEAT is None or MAX_REPEAT < 1:
         return False, False
     with _log_count_lock:
         count = _log_count_map.get(key, 0)
-        if count < MAX_LOG_COUNT:
+        if count < MAX_REPEAT:
             _log_count_map[key] = count + 1
             return False, False
-        elif count == MAX_LOG_COUNT:
+        elif count == MAX_REPEAT:
             _log_count_map[key] = count + 1
             return True, True  # Suppress log, but show ellipsis
         else:
@@ -41,7 +41,7 @@ def _should_suppress_log(key):
 
 def _format_truncation_message(event_type, depth):
     color = "grey50"
-    msg = f"[{color}] ... Repeated logs have been omitted | MAX_LOG_COUNT: {MAX_LOG_COUNT}[/]"
+    msg = f"[{color}] ... Repeated logs have been omitted | MAX_LOG_COUNT: {MAX_REPEAT}[/]"
     return format_with_tree_indent(msg, depth, event_type)
 
 

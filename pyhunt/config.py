@@ -16,4 +16,4 @@ _log_level_name = os.getenv("HUNT_LEVEL", "INFO").lower()
 LOG_LEVEL = LOG_LEVELS.get(_log_level_name, 20)  # default INFO if invalid
 
 # Read max log count from environment variable, default to None (unlimited)
-MAX_LOG_COUNT = int(os.getenv("HUNT_MAX_LOG_COUNT", 3))
+MAX_REPEAT = int(os.getenv("HUNT_MAX_REPEAT", 3))

@@ -22,8 +22,7 @@ def format_call_args(func: Callable, args: tuple, kwargs: dict) -> Dict[str, Any
         bound = inspect.signature(func).bind(*args, **kwargs)
         bound.apply_defaults()
         return {
-            k: str(v) if isinstance(v, Path) else repr(v)
-            for k, v in bound.arguments.items()
+            k: str(v) if isinstance(v, Path) else v for k, v in bound.arguments.items()
         }
     except Exception:
         return {"args": repr(args), "kwargs": repr(kwargs)}
@@ -77,8 +76,34 @@ def pretty_json(data: dict, first_prefix: str, child_prefix: str, color: str) ->
     """
     try:
         truncated_data = _truncate_long_strings(data, MAX_ARG_LENGTH)
-        json_str = json.dumps(truncated_data, indent=2, ensure_ascii=False)
-        # Wrap the entire JSON string in the color tag
+
+        def _custom_json(obj, indent=0):
+            INDENT = 2
+            space = " " * (indent * INDENT)
+            if isinstance(obj, dict):
+                if not obj:
+                    return "{}"
+                items = []
+                for k, v in obj.items():
+                    key_str = json.dumps(k, ensure_ascii=False)
+                    if isinstance(v, list):
+                        # Inline list
+                        value_str = json.dumps(v, ensure_ascii=False)
+                    elif isinstance(v, dict):
+                        value_str = _custom_json(v, indent + 1)
+                    else:
+                        value_str = json.dumps(v, ensure_ascii=False)
+                    items.append(
+                        f"\n{' ' * ((indent + 1) * INDENT)}{key_str}: {value_str}"
+                    )
+                return "{" + ",".join(items) + f"\n{space}" + "}"
+            elif isinstance(obj, list):
+                # Top-level list (shouldn't happen for our use case, but handle anyway)
+                return json.dumps(obj, ensure_ascii=False)
+            else:
+                return json.dumps(obj, ensure_ascii=False)
+
+        json_str = _custom_json(truncated_data, 0)
         colored_json = f"[{color}]{json_str}[/{color}]"
         lines = colored_json.splitlines()
         if not lines:
