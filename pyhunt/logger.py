@@ -41,7 +41,7 @@ def _should_suppress_log(key):
 
 def _format_truncation_message(event_type, depth):
     color = "grey50"
-    msg = f"[{color}] ... Repeated logs have been omitted | MAX_LOG_COUNT: {MAX_REPEAT}[/]"
+    msg = f"[{color}] ... Repeated logs have been omitted | MAX_REPEAT: {MAX_REPEAT}[/]"
     return format_with_tree_indent(msg, depth, event_type)
 
 

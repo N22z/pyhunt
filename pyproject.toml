@@ -34,6 +34,3 @@ local_scheme = "no-local-version"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-markers = [
-    "e2e: marks tests as end-to-end tests (deselect with '-m \"not e2e\"')",
-]
