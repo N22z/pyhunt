@@ -19,7 +19,7 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ]
-dependencies = ["dotenv>=0.9.9", "rich>=14.0.0"]
+dependencies = ["dotenv>=0.9.9"]
 version = "1.0.2"
 
 [project.urls]

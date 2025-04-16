@@ -104,19 +104,23 @@ def pretty_json(data: dict, first_prefix: str, child_prefix: str, color: str) ->
                 return json.dumps(obj, ensure_ascii=False)
 
         json_str = _custom_json(truncated_data, 0)
-        colored_json = f"[{color}]{json_str}[/{color}]"
-        lines = colored_json.splitlines()
+        lines = json_str.splitlines()
         if not lines:
             return ""
+
         result_lines = []
         for idx, line in enumerate(lines):
+            # Apply color to each individual line
+            colored_line = f"[{color}]{line}[/]"
+
             if idx == 0:
-                result_lines.append(f"{first_prefix}{line}")
+                result_lines.append(f"{first_prefix}{colored_line}")
             else:
                 leading_spaces = len(line) - len(line.lstrip(" "))
                 result_lines.append(
-                    f"{child_prefix}{' ' * leading_spaces}{line.lstrip(' ')}"
+                    f"{child_prefix}{' ' * leading_spaces}{colored_line.lstrip(' ')}"
                 )
+
         return "\n".join(result_lines)
     except TypeError as e:
         return f"{first_prefix}{{... serialization error: {e} ...}}"

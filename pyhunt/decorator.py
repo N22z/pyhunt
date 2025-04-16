@@ -1,6 +1,7 @@
 import functools
 import inspect
 import time
+import os
 from pathlib import Path
 from typing import Callable, List, Optional, Type, Union
 
@@ -9,7 +10,6 @@ from pyhunt.context import call_depth, current_function_context
 from pyhunt.helpers import format_call_args
 from pyhunt.logger import log_entry, log_error, log_exit, warning
 from pyhunt.utils import extract_first_traceback
-from rich import print
 
 
 def trace(
@@ -217,7 +217,7 @@ def trace(
                 full_tb_str = "".join(_traceback_module.format_exception(e))
                 first_tb_str = extract_first_traceback(full_tb_str)
 
-                print(first_tb_str)
+                os.write(1, first_tb_str.encode())
                 _sys_module.exit(1)
             finally:
                 # Reset context after await completes
@@ -253,7 +253,7 @@ def trace(
                 full_tb_str = "".join(_traceback_module.format_exception(e))
                 first_tb_str = extract_first_traceback(full_tb_str)
 
-                print(first_tb_str)
+                os.write(1, first_tb_str.encode())
                 _sys_module.exit(1)
 
         return async_wrapper if is_async else wrapper
