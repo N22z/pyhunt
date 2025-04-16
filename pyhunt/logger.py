@@ -2,7 +2,7 @@ from pathlib import Path
 from typing import Any, Dict, Optional
 import threading
 
-from rich.console import Console
+from pyhunt.console import Console
 
 from pyhunt.colors import build_indent, get_color
 from pyhunt.config import LOG_LEVEL, LOG_LEVELS, MAX_REPEAT
@@ -10,7 +10,7 @@ from pyhunt.context import call_depth
 from pyhunt.helpers import pretty_json
 
 # Initialize Rich Console
-console = Console(log_path=False, log_time=False)
+console = Console()
 # --- Log suppression mechanism ---
 _log_count_map = {}
 _log_count_lock = threading.Lock()
