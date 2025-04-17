@@ -1,4 +1,4 @@
-from pyhunt import trace
+from pyhunt import trace, logger
 
 
 @trace
@@ -34,4 +34,4 @@ def main():
 
 if __name__ == "__main__":
     output = main()
-    print(f"Final output: {output}")
+    logger.info(f"Final output: {output}")
